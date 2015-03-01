@@ -5,15 +5,21 @@ namespace InventoryExchanger\InventoryExchanger;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
+use pocketmine\utils\TextFormat;
 use pocketmine\utils\Config;
 use pocketmine\item\Item;
 
 class InventoryExchanger extends PluginBase{
 
 	public function onEnable(){
+		$this->getLogger()->info(TextFormat::GREEN."InventoryExchanger is activated.");
 		$this->loadYml();
 	}
-
+	
+	public function onDisable(){
+		$this->getLogger()->info(TextFormat::RED."InventoryChange is disabled.");
+	}
+	
 	public function onCommand(CommandSender $sender, Command $cmd, $label, array $sub){
 		$n = $sender->getName();
 		$m = "[InventoryExchanger]";
