@@ -17,7 +17,7 @@ class InventoryExchanger extends PluginBase{
 	}
 	
 	public function onDisable(){
-		$this->getLogger()->info(TextFormat::RED."InventoryChange is disabled.");
+		$this->getLogger()->info(TextFormat::RED."InventoryExchanger is disabled.");
 	}
 	
 	public function onCommand(CommandSender $sender, Command $cmd, $label, array $sub){
