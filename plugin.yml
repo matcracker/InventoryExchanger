@@ -1,7 +1,7 @@
 name: InventoryExchanger
-main: InventoryExchanger\InventoryExchanger\InventoryExchanger
-version: 1.0.0
-api: [1.6.0]
+main: InventoryExchanger\matcracker\Main
+version: 2.0.0
+api: [1.13.0]
 author: matcracker
 
 commands:
