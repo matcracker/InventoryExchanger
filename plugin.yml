@@ -5,16 +5,13 @@ api: [1.13.0]
 author: matcracker
 
 commands:
- inve:
+ inventoryexchanger:
   permission: inventoryexchanger.command.inve
-  description: InventoryExchanger Command
-  usage: /inve
+  description: For change inventory and save the old in the same world.
+  usage: /inventoryexchanger
+  aliases: [inve, inventorye, invexchange]
 
 permissions:
- inventoryexchanger.command:
-  default: op
-  description: InventoryExchanger Plugin by matcracker
-  children:
-   inventoryexchanger.command.inve:
-    default: true
-    description: For change inventory and save the old in the same world.
+ inventoryexchanger.command.inve:
+  default: true
+  description: For change inventory and save the old in the same world.
