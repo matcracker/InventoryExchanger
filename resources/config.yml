@@ -1,0 +1,8 @@
+#Configuration file for InventoryExchanger 2.1
+#Language part
+message-command: "&2You correctly change inventory!"
+message-console: "&cPlease run this command in-game"
+message-no-permission: "&4You don't have permission to use this command!"
+
+#Enable or disable prefix when running commands
+enable-prefix: true
