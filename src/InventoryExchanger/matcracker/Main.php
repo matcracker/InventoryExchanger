@@ -61,8 +61,8 @@ class Main extends PluginBase{
 	}
 
 	public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
-		if($this->getConfig()->get("enable.prefix", true))
-			$prefix = "&b[InventoryExchanger]";
+		if($this->getConfig()->get("enable-prefix") === true)
+			$prefix = "&b[InventoryExchanger] ";
 		else
 			$prefix = "";
 
@@ -111,7 +111,7 @@ class Main extends PluginBase{
 
 				}else if($args[0] === "change"){
 					if(!$sender instanceof Player){
-						$sender->sendMessage($prefix . $this->getMessage("message-console"));
+						$sender->sendMessage($this->translateColors("&", $prefix . $this->getMessage("message-console")));
 						return true;
 					}else{
 						if ($sender->hasPermission("inventoryexchanger.command.inve")) {
