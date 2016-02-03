@@ -8,6 +8,8 @@
 
 namespace InventoryExchanger\matcracker;
 
+use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
@@ -16,17 +18,18 @@ use pocketmine\utils\TextFormat;
 use pocketmine\utils\Config;
 use pocketmine\item\Item;
 
-class Main extends PluginBase{
+class Main extends PluginBase implements Listener{
 
 	protected $cfgInv;
 
 	public function onEnable(){
+		$this->getServer()->getPluginManager()->registerEvents($this, $this);
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 		$this->loadYml();
 		$this->getLogger()->info(TextFormat::GREEN . "InventoryExchanger is activated.");
 	}
-	
+
 	public function onDisable(){
 		$this->saveResource("config.yml");
 		$this->saveResource("inventory.yml");
@@ -35,18 +38,18 @@ class Main extends PluginBase{
 
 	public function translateColors($symbol, $message){
 		$message = str_replace($symbol."0", TextFormat::BLACK, $message);
- 		$message = str_replace($symbol."1", TextFormat::DARK_BLUE, $message);
- 		$message = str_replace($symbol."2", TextFormat::DARK_GREEN, $message);
- 		$message = str_replace($symbol."3", TextFormat::DARK_AQUA, $message);
- 		$message = str_replace($symbol."4", TextFormat::DARK_RED, $message);
- 		$message = str_replace($symbol."5", TextFormat::DARK_PURPLE, $message);
+		$message = str_replace($symbol."1", TextFormat::DARK_BLUE, $message);
+		$message = str_replace($symbol."2", TextFormat::DARK_GREEN, $message);
+		$message = str_replace($symbol."3", TextFormat::DARK_AQUA, $message);
+		$message = str_replace($symbol."4", TextFormat::DARK_RED, $message);
+		$message = str_replace($symbol."5", TextFormat::DARK_PURPLE, $message);
 		$message = str_replace($symbol."6", TextFormat::GOLD, $message);
- 		$message = str_replace($symbol."8", TextFormat::DARK_GRAY, $message);
+		$message = str_replace($symbol."8", TextFormat::DARK_GRAY, $message);
 		$message = str_replace($symbol."9", TextFormat::BLUE, $message);
- 		$message = str_replace($symbol."a", TextFormat::GREEN, $message);
+		$message = str_replace($symbol."a", TextFormat::GREEN, $message);
 		$message = str_replace($symbol."b", TextFormat::AQUA, $message);
 		$message = str_replace($symbol."c", TextFormat::RED, $message);
- 		$message = str_replace($symbol."d", TextFormat::LIGHT_PURPLE, $message);
+		$message = str_replace($symbol."d", TextFormat::LIGHT_PURPLE, $message);
 		$message = str_replace($symbol."e", TextFormat::YELLOW, $message);
 		$message = str_replace($symbol."f", TextFormat::WHITE, $message);
 
@@ -54,10 +57,24 @@ class Main extends PluginBase{
 		$message = str_replace($symbol."l", TextFormat::BOLD, $message);
 		$message = str_replace($symbol."m", TextFormat::STRIKETHROUGH, $message);
 		$message = str_replace($symbol."n", TextFormat::UNDERLINE, $message);
- 		$message = str_replace($symbol."o", TextFormat::ITALIC, $message);
+		$message = str_replace($symbol."o", TextFormat::ITALIC, $message);
 		$message = str_replace($symbol."r", TextFormat::RESET, $message);
 
 		return $message;
+	}
+
+	public function onPlayerDrop(PlayerDropItemEvent $event){
+		$player = $event->getPlayer();
+
+		if($this->getOption("enable-drop") === false && !$player->hasPermission("inventoryexchanger.bypass.drops")){
+			$dropWorlds = $this->getConfig()->getAll();
+			foreach($dropWorlds["worlds-drop"] as $worlds){
+				if($player->getLevel()->getName() === $worlds){
+					$event->setCancelled(true);
+					$player->sendMessage($this->translateColors("&", $this->getOption("message-no-drop")));
+				}
+			}
+		}
 	}
 
 	public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
@@ -79,7 +96,7 @@ class Main extends PluginBase{
 						$sender->sendMessage($this->translateColors("&", "&3/inve info&2: Show info about plugin."));
 						$sender->sendMessage($this->translateColors("&", "&3/inve reload&2: Reload plugin's configuration."));
 					}else{
-						$sender->sendMessage($this->translateColors("&", $this->getMessage("message-no-permission")));
+						$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
 					}
 					return true;
 
@@ -95,7 +112,7 @@ class Main extends PluginBase{
 						}
 
 					}else{
-						$sender->sendMessage($this->translateColors("&", $this->getMessage("message-no-permission")));
+						$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
 					}
 					return true;
 
@@ -105,36 +122,63 @@ class Main extends PluginBase{
 						$sender->sendMessage($this->translateColors("&", "&cDeveloped by &2matcracker!"));
 
 					}else{
-						$sender->sendMessage($this->translateColors("&", $this->getMessage("message-no-permission")));
+						$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
 					}
 					return true;
-
 				}else if($args[0] === "change"){
 					if(!$sender instanceof Player){
-						$sender->sendMessage($this->translateColors("&", $prefix . $this->getMessage("message-console")));
+						$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-console")));
 						return true;
 					}else{
-						if ($sender->hasPermission("inventoryexchanger.command.inve")) {
+						if($sender->hasPermission("inventoryexchanger.command.inve")){
 							$inv = $sender->getInventory();
 							if (!isset($this->cfgInv[$name])) $this->cfgInv[$name] = [];
 							$getInv = [];
 
 							foreach ($inv->getContents() as $gI) {
-								if ($gI->getID() !== 0 and $gI->getCount() > 0) $getInv[] = [$gI->getID(), $gI->getDamage(), $gI->getCount()];
+								if ($gI->getId() !== 0 and $gI->getCount() > 0) $getInv[] = [$gI->getId(), $gI->getDamage(), $gI->getCount()];
 							}
 
 							$setInv = [];
-							foreach ($this->cfgInv[$name] as $iE)
-								$setInv[] = Item::get($iE[0], $iE[1], $iE[2]);
 
-							$this->cfgInv[$name] = $getInv;
-							$inv->setContents($setInv);
-							$this->saveYml();
+							if($this->getOption("block-items-switch") === true && !$sender->hasPermission("inventoryexchanger.bypass.items")){
+								$items = $this->getConfig()->getAll();
+								foreach($items["blocked-items"] as $blockedItems){
+									foreach($inv->getContents() as $id){
+										if($id->getId() === $blockedItems){
+											$sender->sendMessage($this->translateColors("&", $this->getOption("message-blocked-items")));
+											break;
+										}else{
+											foreach ($this->cfgInv[$name] as $iE)
+												$setInv[] = Item::get($iE[0], $iE[1], $iE[2]);
 
-							$sender->sendMessage($this->translateColors("&", $prefix . $this->getMessage("message-command")));
+											$this->cfgInv[$name] = $getInv;
+											$inv->setContents($setInv);
+											$this->saveYml();
+
+											$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-command")));
+											break;
+										}
+									}
+								}
+								/*foreach($items["blocked-items"] as $blockedItems){
+									if($inv->getContents() === $blockedItems){
+										$sender->sendMessage($this->translateColors("&", $this->getOption("message-blocked-items")));
+									}
+								}*/
+							}else{
+								foreach ($this->cfgInv[$name] as $iE)
+									$setInv[] = Item::get($iE[0], $iE[1], $iE[2]);
+
+								$this->cfgInv[$name] = $getInv;
+								$inv->setContents($setInv);
+								$this->saveYml();
+
+								$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-command")));
+							}
 
 						}else{
-							$sender->sendMessage($this->translateColors("&", $this->getMessage("message-no-permission")));
+							$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
 						}
 					}
 					return true;
@@ -162,12 +206,12 @@ class Main extends PluginBase{
 		$this->loadYml();
 	}
 
-	public function getMessage($message){
-		return $this->getConfig()->get($message);
+	public function getOption($option){
+		return $this->getConfig()->get($option);
 	}
 
-	public function setMessage($message){
-		$this->getConfig()->set($message);
+	public function setOption($option){
+		$this->getConfig()->set($option);
 		$this->getConfig()->save();
 	}
 

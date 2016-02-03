@@ -3,6 +3,22 @@
 message-command: "&2You correctly change inventory!"
 message-console: "&cPlease run this command in-game"
 message-no-permission: "&4You don't have permission to use this command!"
+message-no-drop: "&cYou can't drop items in this world!"
+message-blocked-items: "&cYou can't switch inventory, you've got some blocked items, remove it."
 
 #Enable or disable prefix when running commands
 enable-prefix: true
+
+#Enable or disable drops in some worlds
+enable-drop: true
+#If enable-drop is false you can choose on which worlds the drops are disabled
+worlds-drop:
+  - world
+  - world2
+
+block-items-switch: false
+blocked-items:
+  - 7
+  - 1
+  - Dirt
+

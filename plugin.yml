@@ -1,26 +1,36 @@
 name: InventoryExchanger
 main: InventoryExchanger\matcracker\Main
-version: 2.1.1
+version: 2.2.0
 api: [1.13.0]
 author: matcracker
 
 commands:
  inventoryexchanger:
-  permission: inventoryexchanger.command
+  permission: inventoryexchanger.command.inve
   description: For change inventory and save the old in the same world.
   usage: Use /inve help for a list of all plugin's commands
   aliases: [inve, inventorye, invexchange]
 
 permissions:
- inventoryexchanger.command.inve:
-  default: true
-  description: For change inventory and save the old in the same world.
- inventoryexchanger.command.info:
+ inventoryexchanger.all:
    default: op
-   description: Show info about plugin.
- inventoryexchanger.command.help:
-   default: op
-   description: Show help page.
- inventoryexchanger.command.help:
-   default: op
-   description: Reload plugin's configuration.
+   description: Permission for all commands
+   children:
+     inventoryexchanger.command.inve:
+      default: true
+      description: For change inventory and save the old in the same world.
+     inventoryexchanger.command.info:
+       default: op
+       description: Show info about plugin.
+     inventoryexchanger.command.help:
+       default: op
+       description: Show help page.
+     inventoryexchanger.command.help:
+       default: op
+       description: Reload plugin's configuration.
+     inventoryexchanger.bypass.drops:
+       default: op
+       description: Bypass no drops protection.
+     inventoryexchanger.bypass.items:
+       default: op
+       description: Bypass no items protection.
