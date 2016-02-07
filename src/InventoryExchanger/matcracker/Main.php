@@ -64,14 +64,25 @@ class Main extends PluginBase implements Listener{
 	}
 
 	public function onPlayerDrop(PlayerDropItemEvent $event){
-		$player = $event->getPlayer();
+		if($this->getConfig()->get("enable-prefix") === true)
+			$prefix = "&b[InventoryExchanger] ";
+		else
+			$prefix = "";
 
+		$player = $event->getPlayer();
+		$dropWorlds = $this->getConfig()->getAll();
 		if($this->getOption("enable-drop") === false && !$player->hasPermission("inventoryexchanger.bypass.drops")){
-			$dropWorlds = $this->getConfig()->getAll();
 			foreach($dropWorlds["worlds-drop"] as $worlds){
 				if($player->getLevel()->getName() === $worlds){
 					$event->setCancelled(true);
-					$player->sendMessage($this->translateColors("&", $this->getOption("message-no-drop")));
+					$player->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-no-drop")));
+				}
+			}
+		}else if($this->getOption("enable-drop") === true && !$player->hasPermission("inventoryexchanger.bypass.drops")){
+			foreach($dropWorlds["worlds-drop"] as $worlds){
+				if($player->getLevel()->getName() != $worlds){
+					$event->setCancelled(true);
+					$player->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-no-drop")));
 				}
 			}
 		}
@@ -96,7 +107,7 @@ class Main extends PluginBase implements Listener{
 						$sender->sendMessage($this->translateColors("&", "&3/inve info&2: Show info about plugin."));
 						$sender->sendMessage($this->translateColors("&", "&3/inve reload&2: Reload plugin's configuration."));
 					}else{
-						$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
+						$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-no-permission")));
 					}
 					return true;
 
@@ -105,14 +116,14 @@ class Main extends PluginBase implements Listener{
 						try{
 							$this->saveDefaultConfig();
 							$this->getConfig()->reload();
-							$sender->sendMessage($this->translateColors("&", "&aConfiguration reloaded!"));
+							$sender->sendMessage($this->translateColors("&", $prefix . "&aConfiguration reloaded!"));
 						}catch(\Exception $e){
-							$sender->sendMessage(TextFormat::DARK_RED . "An error occured during the reloading! Check console.");
+							$sender->sendMessage($prefix . TextFormat::DARK_RED . "An error occured during the reloading! Check console.");
 							$this->getLogger()->critical($e);
 						}
 
 					}else{
-						$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
+						$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-no-permission")));
 					}
 					return true;
 
@@ -122,7 +133,7 @@ class Main extends PluginBase implements Listener{
 						$sender->sendMessage($this->translateColors("&", "&cDeveloped by &2matcracker!"));
 
 					}else{
-						$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
+						$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-no-permission")));
 					}
 					return true;
 				}else if($args[0] === "change"){
@@ -130,52 +141,25 @@ class Main extends PluginBase implements Listener{
 						$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-console")));
 						return true;
 					}else{
-						if($sender->hasPermission("inventoryexchanger.command.inve")){
+						if($sender->hasPermission("inventoryexchanger.command.inve")) {
 							$inv = $sender->getInventory();
-							if (!isset($this->cfgInv[$name])) $this->cfgInv[$name] = [];
 							$getInv = [];
-
-							foreach ($inv->getContents() as $gI) {
-								if ($gI->getId() !== 0 and $gI->getCount() > 0) $getInv[] = [$gI->getId(), $gI->getDamage(), $gI->getCount()];
-							}
-
 							$setInv = [];
 
-							if($this->getOption("block-items-switch") === true && !$sender->hasPermission("inventoryexchanger.bypass.items")){
-								$items = $this->getConfig()->getAll();
-								foreach($items["blocked-items"] as $blockedItems){
-									foreach($inv->getContents() as $id){
-										if($id->getId() === $blockedItems){
-											$sender->sendMessage($this->translateColors("&", $this->getOption("message-blocked-items")));
-											break;
-										}else{
-											foreach ($this->cfgInv[$name] as $iE)
-												$setInv[] = Item::get($iE[0], $iE[1], $iE[2]);
+							if(!isset($this->cfgInv[$name]))
+								$this->cfgInv[$name] = [];
 
-											$this->cfgInv[$name] = $getInv;
-											$inv->setContents($setInv);
-											$this->saveYml();
+							foreach($inv->getContents() as $contents)
+								if($contents->getId() !== 0 and $contents->getCount() > 0)
+									$getInv[] = [$contents->getId(), $contents->getDamage(), $contents->getCount()];
 
-											$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-command")));
-											break;
-										}
-									}
-								}
-								/*foreach($items["blocked-items"] as $blockedItems){
-									if($inv->getContents() === $blockedItems){
-										$sender->sendMessage($this->translateColors("&", $this->getOption("message-blocked-items")));
-									}
-								}*/
-							}else{
-								foreach ($this->cfgInv[$name] as $iE)
-									$setInv[] = Item::get($iE[0], $iE[1], $iE[2]);
+							foreach($this->cfgInv[$name] as $iE)
+								$setInv[] = Item::get($iE[0], $iE[1], $iE[2]);
 
-								$this->cfgInv[$name] = $getInv;
-								$inv->setContents($setInv);
-								$this->saveYml();
-
-								$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-command")));
-							}
+							$this->cfgInv[$name] = $getInv;
+							$inv->setContents($setInv);
+							$this->saveYml();
+							$sender->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-command")));
 
 						}else{
 							$sender->sendMessage($this->translateColors("&", $this->getOption("message-no-permission")));
