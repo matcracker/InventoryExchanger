@@ -8,7 +8,9 @@
 
 namespace InventoryExchanger\matcracker;
 
+use pocketmine\event\entity\EntityDeathEvent;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerDropItemEvent;
 use pocketmine\Player;
 use pocketmine\plugin\PluginBase;
@@ -61,6 +63,34 @@ class Main extends PluginBase implements Listener{
 		$message = str_replace($symbol."r", TextFormat::RESET, $message);
 
 		return $message;
+	}
+
+	public function onPlayerDeath(PlayerDeathEvent $event){
+		if($this->getConfig()->get("enable-prefix") === true)
+			$prefix = "&b[InventoryExchanger] ";
+		else
+			$prefix = "";
+
+		$player = $event->getEntity();
+
+		if(!$player instanceof Player) return;
+
+		$dropWorlds = $this->getConfig()->getAll();
+		if($this->getOption("enable-death-drop") === false && !$player->hasPermission("inventoryexchanger.bypass.deathdrops")){
+			foreach($dropWorlds["worlds-death-drop"] as $worlds){
+				if($player->getLevel()->getName() === $worlds){
+					$event->setDrops([]);
+					$player->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-death-drop")));
+				}
+			}
+		}else if($this->getOption("enable-death-drop") === true && !$player->hasPermission("inventoryexchanger.bypass.deathdrops")){
+			foreach($dropWorlds["worlds-death-drop"] as $worlds){
+				if($player->getLevel()->getName() != $worlds){
+					$event->setDrops([]);
+					$player->sendMessage($this->translateColors("&", $prefix . $this->getOption("message-death-drop")));
+				}
+			}
+		}
 	}
 
 	public function onPlayerDrop(PlayerDropItemEvent $event){

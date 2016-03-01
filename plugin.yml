@@ -1,6 +1,6 @@
 name: InventoryExchanger
 main: InventoryExchanger\matcracker\Main
-version: 2.2.0
+version: 2.3.0
 api: [1.13.0]
 author: matcracker
 
@@ -31,3 +31,6 @@ permissions:
      inventoryexchanger.bypass.drops:
        default: op
        description: Bypass no drops protection.
+     inventoryexchanger.bypass.deathdrops:
+       default: op
+       description: Bypass death drops protection.

@@ -1,9 +1,10 @@
-#Configuration file for InventoryExchanger 2.1
+#Configuration file for InventoryExchanger 2.3
 #Language part
 message-command: "&2You correctly change inventory!"
 message-console: "&cPlease run this command in-game"
 message-no-permission: "&4You don't have permission to use this command!"
 message-no-drop: "&cYou can't drop items in this world!"
+message-death-drop: "&cYou are dead but your drops have been cancelled in this world!"
 
 #Enable or disable prefix when running commands
 enable-prefix: true
@@ -13,5 +14,12 @@ enable-drop: true
 #If enable-drop is false, you can choose on which worlds the drops are disabled
 #If enable-drop is true, you can choose on which worlds the drops are enabled
 worlds-drop:
+  - world
+  - world2
+
+enable-death-drop: false
+#If enable-death-drop is false, you can choose on which worlds the drops of player are disabled
+#If enable-death-drop is true, you can choose on which worlds the drops of player are enabled
+worlds-death-drop:
   - world
   - world2
