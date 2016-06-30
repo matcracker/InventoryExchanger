@@ -34,3 +34,6 @@ permissions:
      inventoryexchanger.bypass.deathdrops:
        default: op
        description: Bypass death drops protection.
+     invetoryexchanger.sharedinv.change:
+       default: false
+       description: This permission deny to change inventory when player change world/gamemode

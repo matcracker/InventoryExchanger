@@ -16,25 +16,31 @@ use pocketmine\utils\TextFormat;
 use pocketmine\item\Item;
 
 class Main extends PluginBase{
-    protected $conf;
+    public $conf;
 
-	public function onEnable() : void{
-		$this->getServer()->getPluginManager()->registerEvents($this, $this);
-        $this->conf = new Configs();
+	public function onEnable(){
+        $this->conf = new Configs($this);
+		$this->getServer()->getPluginManager()->registerEvents(new Events($this->conf), $this);
 		@mkdir($this->getDataFolder());
 		$this->saveDefaultConfig();
 		$this->conf->loadYml();
+        $this->saveResources();
 		$this->getLogger()->info(TextFormat::GREEN . "InventoryExchanger is activated.");
 	}
 
-	public function onDisable() : void{
-		$this->saveResource("config.yml");
-		$this->saveResource("inventory.yml");
+	public function onDisable(){
+		$this->saveResources();
 		$this->getLogger()->info(TextFormat::RED . "InventoryExchanger is disabled.");
 	}
 
-	public function onCommand(CommandSender $sender, Command $cmd, $label, array $args) : boolean{
-        $this->conf = new Configs();
+    private function saveResources(){
+        $this->saveResource("config.yml");
+        $this->saveResource("inventory.yml");
+        $this->saveResource("multi-inventories.yml");
+    }
+
+	public function onCommand(CommandSender $sender, Command $cmd, $label, array $args){
+        $this->conf = new Configs($this);
 		if($this->getConfig()->get("enable-prefix") === true)
 			$prefix = "&b[InventoryExchanger] ";
 		else

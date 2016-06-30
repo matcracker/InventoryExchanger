@@ -5,6 +5,8 @@ message-console: "&cPlease run this command in-game"
 message-no-permission: "&4You don't have permission to use this command!"
 message-no-drop: "&cYou can't drop items in this world!"
 message-death-drop: "&cYou are dead but your drops have been cancelled in this world!"
+message-changed-mode: "&2You change gamemode and your inventory is changed too!"
+message-changed-inventory: "&2You change world and your inventory is changed too!"
 
 #Enable or disable prefix when running commands
 enable-prefix: true
@@ -24,9 +26,7 @@ worlds-death-drop:
   - world
   - world2
 
-#Enable for share the same invetory in other worlds
-enable-shared-worlds: false
-#Choose which worlds you can share the same inventory.
-worlds-shared-inventory:
- - world2
- - world3
+#Enable for change inventory on each world you travel.
+enable-worlds-inventory: true
+#When a player change world or gamemode, choose if you want to alert him about the change
+hide-message-onChange: false
